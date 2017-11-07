@@ -1,0 +1,4 @@
+.button{
+    -fx-min-width: 120px;
+    -fx-background-color: crimson;
+}
