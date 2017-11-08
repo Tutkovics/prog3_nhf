@@ -1,36 +1,19 @@
 package sample;
 
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
+//import javafx.event.ActionEvent;
+//import javafx.event.EventHandler;
+//import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.css.*;
-import javafx.scene.Group;
-import javafx.scene.paint.Color;
-
-import javax.swing.*;
-import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import java.io.*;
 
 
 public class Main extends Application {
@@ -77,9 +60,9 @@ public class Main extends Application {
     public static void main(String[] args) {
         //launch(args);
 
-        Elevator a = new Elevator("A",15,0,18,1.0);
-        Elevator b = new Elevator("B",15,-1,18,1.0);
-        Elevator c = new Elevator("C",20,-1,18,1.0);
+        Elevator a = new Elevator("A",15,0,18,0.6);
+        Elevator b = new Elevator("B",15,-1,18,0.6);
+        Elevator c = new Elevator("C",20,-1,18,0.6);
         Elevator d = new Elevator("D",20,-1,18,0.2);
 
         ElevatorController controller = new ElevatorController();
@@ -88,7 +71,18 @@ public class Main extends Application {
         controller.addNewElevator(c);
         controller.addNewElevator(d);
 
-        controller.addNewCall(2, 5);
+        //controller.addNewCall(2, 5);
+
+       //double time = a.timeBeetweenTwoFloor(-1,18);
+       //System.out.println("Ennyi idő kell: " + time);
+
+       a.addCall(2);
+       a.addCall(19);
+       a.addCall(5);
+       a.addCall(8989);
+
+       controller.addNewCall(2,5);
+
     }
 
 
