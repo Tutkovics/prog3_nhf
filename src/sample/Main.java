@@ -15,7 +15,15 @@ import javafx.scene.text.FontPosture;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-
+/**
+ * A nagyházi<code>Main</code> osztálya.
+ *
+ * <p>Itt kerülnek létrehozásra a liftek, illetve itt adom hozzá
+ * a liftkontrollerhez. Valamint a megjelenítésért, és az osztályok
+ * együttműködéséért felelős.
+ *
+ * @author  Tutkovics András
+ */
 public class Main extends Application {
 
     @Override
@@ -60,10 +68,11 @@ public class Main extends Application {
     public static void main(String[] args) {
         //launch(args);
 
+        //Elevator a = new Elevator("A",15,0,18,0.6);
         Elevator a = new Elevator("A",15,0,18,0.6);
         Elevator b = new Elevator("B",15,-1,18,0.6);
         Elevator c = new Elevator("C",20,-1,18,0.6);
-        Elevator d = new Elevator("D",20,-1,18,0.2);
+        Elevator d = new Elevator("D",20,-1,18,0.6);
 
         ElevatorController controller = new ElevatorController();
         controller.addNewElevator(a);
@@ -71,19 +80,13 @@ public class Main extends Application {
         controller.addNewElevator(c);
         controller.addNewElevator(d);
 
-        //controller.addNewCall(2, 5);
-
-       //double time = a.timeBeetweenTwoFloor(-1,18);
-       //System.out.println("Ennyi idő kell: " + time);
-
        a.addCall(2);
-       a.addCall(19);
-       a.addCall(5);
-       a.addCall(8989);
+       a.addCall(10);
+       b.addCall( 14);
+       d.addCall(-1);
 
-       controller.addNewCall(2,5);
+       controller.addNewCall(2,10);
 
     }
-
 
 }
