@@ -27,14 +27,21 @@ public class ElevatorController {
      */
     public void addNewCall(int startFloor, int endFloor){
         // get the fastest arrival elevator
-        //Elevator fastest = elevatorSet.iterator().next();
-        double calculatedTime, time = 1000;
+        Elevator fastest = elevatorSet.iterator().next();
+        double time, fastestTime = 1000.0;
 
 
         for( Elevator e: elevatorSet){
-            time = e.calculateArrivalTime(startFloor);
-            System.out.println(e.name + " szükséges ideje: " + time);
+            if( (startFloor <= e.maxFloor && startFloor >= e.minFloor) || (endFloor <= e.maxFloor && endFloor >= e.minFloor)){
+                time = e.calculateArrivalTime(startFloor);
+                System.out.println(e.name + " szükséges ideje: " + time);
+
+                fastest = fastestTime > time ? e : fastest;
+                //esetleg figyelhetné azt is, hogy melyik liftben hágy hívás van eddig
+            }
         }
 
+        System.out.println("Leggyorsabb lift: " + fastest.name);
+        fastest.addCall(endFloor);
     }
 }

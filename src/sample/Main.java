@@ -15,6 +15,8 @@ import javafx.scene.text.FontPosture;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.util.TreeSet;
+
 /**
  * A nagyházi<code>Main</code> osztálya.
  *
@@ -56,8 +58,6 @@ public class Main extends Application {
         menuGrid.add(settings,0,4);
         Scene menu = new Scene(menuGrid, 600, 300);
 
-        //play.getStylesheets().add("test.css");
-
        stage.setTitle("Liftszimulátor");
        stage.setScene(menu);
        stage.show();
@@ -85,7 +85,39 @@ public class Main extends Application {
        b.addCall( 14);
        d.addCall(-1);
 
-       controller.addNewCall(2,10);
+       try {
+           controller.addNewCall(-1, 10);
+       }catch (Exception e){
+           System.out.println("Balfasz");
+       }
+
+       TreeSet<Call> proba = new TreeSet<>();
+       Timer ti = new Timer(0,12,35);
+       Call c1 = new Call(1,2, ti);
+       Call c2 = new Call(1,9, ti);
+       Call c3 = new Call(1,-1, ti);
+       Call c4 = new Call(1,-100, ti);
+       proba.add(c1);
+       proba.add(c2);
+       proba.add(c3);
+       proba.add(c4);
+       c2.s = Call.Status.GET_IN;
+       c1.s = Call.Status.DONE;
+       for(Call e: proba){
+           System.out.println("From:\t" + e.from + "\tTo:\t" + e.to + "\tS: " + e.s);
+       }
+        System.out.println("Counter: "+Call.counter);
+
+        Timer t1 = new Timer(00,59,55);
+        Timer t2 = new Timer(00,15,50);
+        if(t1.equals(t2)) System.out.println("Azonosak");
+        t1.addSecond();
+        if(t1.equals(t2)) System.out.println("Azonosak");
+        t2.addSecond();
+
+        if(t1.equals(t2)) System.out.println("Azonosak");
+        Thread th = new Thread(t1);
+        th.start();
 
     }
 

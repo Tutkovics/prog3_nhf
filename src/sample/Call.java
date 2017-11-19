@@ -1,0 +1,45 @@
+package sample;
+
+/**
+ * A nagyházi<code>Call</code> osztálya.
+ *
+ * <p>Az elemi szintű lifthívások osztálya. Tárolva van benne, hogy honnan hova
+ * utazik az illető, illetve, hogy a maga a hívás melyik fázisban van. Pl: felvette-e már
+ * az utast a lift, vagy még meg kell állnia a szinten.
+ *
+ * @author  Tutkovics András
+ */
+public class Call implements Comparable<Call> {
+    enum Status{ CALLED, GET_IN, DONE }
+    public static int counter = 0;
+    public int from;
+    public int to;
+    public Status s;
+    public Timer timer;
+
+    /**
+     * A <code>Call</code> osztály konstruktora.
+     * <p>Alapértelmezettként a <code>CALLED</code> státusz lesz beállítva.</p>
+     * @param f melyik szintről hívták a liftet
+     * @param t melyik szintre akarnak utazni a lifttel
+     */
+    public Call(int f, int t, Timer time){
+        from = f;
+        to = t;
+        s = Status.CALLED;
+        timer = time;
+        counter++;
+    }
+
+    /**
+     * Muszáj volt felülírni, különben nem tudna a <code>TreeSet</code>
+     * valami sorrendet felállítani köztük.
+     *
+     * @param o a másik <code>Call</code> objektum
+     * @return a két objektum célállomásának különbsége
+     */
+    @Override
+    public int compareTo(Call o) {
+        return this.to - o.to;
+    }
+}
