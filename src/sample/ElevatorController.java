@@ -22,18 +22,17 @@ public class ElevatorController {
      * a leggyorsabban megérkezni a hívó szintjére, majd a nyertes liftnek hozzáadja
      * a hívások tömbjéhez.
      *
-     * @param startFloor a hívónak a szintje, ahonnan utazni szeretne
-     * @param endFloor a cél szint
+     * @param call maga a hívás. Minden szükséges adatot tartalmaz
      */
-    public void addNewCall(int startFloor, int endFloor){
+    public void addNewCall(Call call){
         // get the fastest arrival elevator
         Elevator fastest = elevatorSet.iterator().next();
         double time, fastestTime = 1000.0;
 
 
         for( Elevator e: elevatorSet){
-            if( (startFloor <= e.maxFloor && startFloor >= e.minFloor) || (endFloor <= e.maxFloor && endFloor >= e.minFloor)){
-                time = e.calculateArrivalTime(startFloor);
+            if( (call.from <= e.maxFloor && call.from >= e.minFloor) || (call.to <= e.maxFloor && call.to >= e.minFloor)){
+                time = e.calculateArrivalTime(call);
                 System.out.println(e.name + " szükséges ideje: " + time);
 
                 fastest = fastestTime > time ? e : fastest;
@@ -42,6 +41,6 @@ public class ElevatorController {
         }
 
         System.out.println("Leggyorsabb lift: " + fastest.name);
-        fastest.addCall(endFloor);
+        fastest.addCall(call);
     }
 }

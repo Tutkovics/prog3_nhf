@@ -17,7 +17,7 @@ public class Elevator {
     private static double floorToMeter = 2.5;
     public static double openDoor = 4.0; // sec
     public static double waitTime = 8.0; // sec
-    public TreeSet<Integer> calls = new TreeSet<Integer>(); // TreeSet, mert növekvő sorrendbe tárolja a szintek számát
+    public TreeSet<Call> calls = new TreeSet<Call>(); // TreeSet, mert növekvő sorrendbe tárolja a szintek számát
 
     Random random = new Random();
 
@@ -43,7 +43,7 @@ public class Elevator {
 
         // set to a random floor
         //actualFloor = random.nextInt(maxFloor + 1 - minFloor) + minFloor;
-        actualFloor = 0;
+        actualFloor = 5;
     }
 
     /**
@@ -51,37 +51,38 @@ public class Elevator {
      * Figyelembe veszi, hogy van-e híváslista éppen a liftben, vagy üres, mert akkor
      * rögtön az adott emeletre mehet. Ellenkező esetben ki kell még szolgálnia az útjába eső megállókat.
      *
-     * @param callersFloor melyik emeletre kellene menni
+     * @param call a hívás, ami tartalmazza, hogy melyik emeletről hívták a liftet
      * @return érkezési idő
      */
-    public double calculateArrivalTime(int callersFloor){
+    public double calculateArrivalTime(Call call){
         // sum the time beetween floor
         double time;
 
         if( calls.isEmpty()){
             // Ha üres a lift rögtön tud menni a hívó szintjére
-            time = timeBeetweenTwoFloor(actualFloor, callersFloor);
-            System.out.println(name + " üres --> rögtön tud menni a " + callersFloor + ". szintre");
+            time = timeBeetweenTwoFloor(actualFloor, call.from);
+            System.out.println(name + " üres --> rögtön tud menni a " + call.from + ". szintre");
         } else {
             // Abban az esetben, ha vannak utasok a liftben
-            System.out.println(name + " első emelete: " + calls.first());
-            boolean needToGoUp = actualFloor <= calls.first();
-            if( (needToGoUp && callersFloor >= actualFloor) || (!needToGoUp && callersFloor <= actualFloor)){
+            System.out.println(name + " első emelete: " + calls.first().to);
+            boolean needToGoUp = actualFloor <= calls.first().to;
+            if( (needToGoUp && call.from >= actualFloor) || (!needToGoUp && call.from <= actualFloor)){
                 // útba esik
                 int tempFloor = actualFloor;
                 int stops = 0;
                 time = 0;
-                for(Integer nextFloor: calls){
-                    System.out.println("nextFloor: "+ nextFloor);
-                    if((tempFloor <= callersFloor && nextFloor >= callersFloor) || (tempFloor >= callersFloor && nextFloor <= callersFloor)){
+                for(Call nextCall: calls){
+                    System.out.println("Következő megálló: "+ nextCall.to);
+                    if((tempFloor <= call.from && nextCall.from >= call.from) ||
+                            (tempFloor >= call.from && nextCall.from <= call.from)){
                         // Ha már nincs több útba eső megálló akkor nem kell tovább számolni
-                        time += timeBeetweenTwoFloor(tempFloor, callersFloor);
+                        time += timeBeetweenTwoFloor(tempFloor, call.from);
                         System.out.println(name + " nincs több útba eső megálló");
 
                     } else {
-                        time += timeBeetweenTwoFloor(tempFloor, nextFloor);
-                        System.out.println(name + " még meg kell álljon " + nextFloor + ". emeleten");
-                        tempFloor = nextFloor;
+                        time += timeBeetweenTwoFloor(tempFloor, nextCall.from);
+                        System.out.println(name + " még meg kell álljon " + nextCall.to + ". emeleten");
+                        tempFloor = nextCall.to;
                         stops++;
                     }
 
@@ -93,9 +94,9 @@ public class Elevator {
                 int stops = calls.size();
                 int tempFloor = actualFloor;
                 time = 0;
-                for(Integer nextFloor: calls){
-                    time += timeBeetweenTwoFloor(tempFloor, nextFloor);
-                    tempFloor = nextFloor;
+                for(Call nextCall: calls){
+                    time += timeBeetweenTwoFloor(tempFloor, nextCall.to);
+                    tempFloor = nextCall.to;
                 }
                 time += stops * (openDoor*2 + waitTime);
             }
@@ -138,10 +139,10 @@ public class Elevator {
      * Hozzáad egy szintet azon szintek listájához, ahhol meg kell állnia a liftnek,
      * mert van benne olyan "utas" aki az adott szintre hívta a liftet.
      *
-     * @param i azon szint száma, ahol meg kell állni
+     * @param call a hozzáadni kívánt hívás
      */
-    public void addCall(int i){
-        this.calls.add(i);
+    public void addCall(Call call){
+        this.calls.add(call);
     }
 
 

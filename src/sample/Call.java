@@ -1,5 +1,7 @@
 package sample;
 
+import java.io.Serializable;
+
 /**
  * A nagyházi<code>Call</code> osztálya.
  *
@@ -9,13 +11,14 @@ package sample;
  *
  * @author  Tutkovics András
  */
-public class Call implements Comparable<Call> {
+public class Call implements Comparable<Call>, Serializable{
     enum Status{ CALLED, GET_IN, DONE }
     public static int counter = 0;
     public int from;
     public int to;
     public Status s;
     public Timer timer;
+    public int id;
 
     /**
      * A <code>Call</code> osztály konstruktora.
@@ -28,6 +31,7 @@ public class Call implements Comparable<Call> {
         to = t;
         s = Status.CALLED;
         timer = time;
+        id = counter;
         counter++;
     }
 

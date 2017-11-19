@@ -1,9 +1,10 @@
 package sample;
 
+import java.io.Serializable;
 import java.security.InvalidParameterException;
 import static java.lang.Thread.sleep;
 
-public class Timer implements Runnable {
+public class Timer implements Runnable, Serializable {
     public int hh;
     public int mm;
     public int ss;
