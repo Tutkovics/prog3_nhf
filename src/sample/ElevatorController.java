@@ -31,12 +31,18 @@ public class ElevatorController {
 
 
         for( Elevator e: elevatorSet){
-            if( (call.from <= e.maxFloor && call.from >= e.minFloor) || (call.to <= e.maxFloor && call.to >= e.minFloor)){
+            if( (call.from <= e.maxFloor && call.from >= e.minFloor) && (call.to <= e.maxFloor && call.to >= e.minFloor)){
                 time = e.calculateArrivalTime(call);
                 System.out.println(e.name + " szükséges ideje: " + time);
+                System.out.println("Eddigi leggyorsabb: "+ fastestTime);
 
-                fastest = fastestTime > time ? e : fastest;
+                if(fastestTime > time){
+                    fastest = e;
+                    fastestTime = time;
+                }
                 //esetleg figyelhetné azt is, hogy melyik liftben hágy hívás van eddig
+            } else {
+                System.out.println("Rossz szintet adtál meg");
             }
         }
 

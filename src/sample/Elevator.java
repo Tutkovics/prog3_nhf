@@ -55,32 +55,32 @@ public class Elevator {
      * @return érkezési idő
      */
     public double calculateArrivalTime(Call call){
-        // sum the time beetween floor
+        // sum the time beetween floors
         double time;
-
         if( calls.isEmpty()){
             // Ha üres a lift rögtön tud menni a hívó szintjére
             time = timeBeetweenTwoFloor(actualFloor, call.from);
             System.out.println(name + " üres --> rögtön tud menni a " + call.from + ". szintre");
         } else {
             // Abban az esetben, ha vannak utasok a liftben
-            System.out.println(name + " első emelete: " + calls.first().to);
+            System.out.println(name + " vannak utasok; első emelete: " + calls.first().to);
             boolean needToGoUp = actualFloor <= calls.first().to;
             if( (needToGoUp && call.from >= actualFloor) || (!needToGoUp && call.from <= actualFloor)){
                 // útba esik
+                System.out.println(name + "útba esik");
                 int tempFloor = actualFloor;
                 int stops = 0;
                 time = 0;
                 for(Call nextCall: calls){
                     System.out.println("Következő megálló: "+ nextCall.to);
-                    if((tempFloor <= call.from && nextCall.from >= call.from) ||
-                            (tempFloor >= call.from && nextCall.from <= call.from)){
+                    if((tempFloor <= call.from && nextCall.to >= call.from) ||
+                            (tempFloor >= call.from && nextCall.to <= call.from)){
                         // Ha már nincs több útba eső megálló akkor nem kell tovább számolni
                         time += timeBeetweenTwoFloor(tempFloor, call.from);
                         System.out.println(name + " nincs több útba eső megálló");
 
                     } else {
-                        time += timeBeetweenTwoFloor(tempFloor, nextCall.from);
+                        time += timeBeetweenTwoFloor(tempFloor, nextCall.to);
                         System.out.println(name + " még meg kell álljon " + nextCall.to + ". emeleten");
                         tempFloor = nextCall.to;
                         stops++;
@@ -98,6 +98,8 @@ public class Elevator {
                     time += timeBeetweenTwoFloor(tempFloor, nextCall.to);
                     tempFloor = nextCall.to;
                 }
+                //miután kiürült még oda kell érjen a hívó szintjére
+                time += timeBeetweenTwoFloor(tempFloor, call.from);
                 time += stops * (openDoor*2 + waitTime);
             }
         }
