@@ -85,7 +85,6 @@ public class Elevator {
                         tempFloor = nextCall.to;
                         stops++;
                     }
-
                     time += stops * (openDoor*2 + waitTime);
                 }
             } else {

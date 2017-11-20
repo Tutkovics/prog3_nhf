@@ -43,7 +43,7 @@ public class Timer implements Runnable, Serializable {
                 hh++;
             }
         }
-        System.out.println(hh + ":" +mm +":" + ss );
+        //System.out.println(hh + ":" +mm +":" + ss );
     }
 
     /**

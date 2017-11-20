@@ -74,7 +74,7 @@ public class CallsController extends JFrame{
                            o = c.timer.ss;
                            break;
                    }
-                   if( i== col)break;
+                   if( i == row)break;
                    i++;
                }
                     return o;
@@ -82,8 +82,39 @@ public class CallsController extends JFrame{
             public boolean isCellEditable(int row, int col)
             { return true; }
             public void setValueAt(Object value, int row, int col) {
+                int i = 0;
+                for(Call c:proba) {
+                    switch (col) {
+                        case 0:
+                            c.id = (int) value;
+                            break;
+                        case 1:
+                            c.from = (int) value;
+                            break;
+                        case 2:
+                            c.to = (int) value;
+                            break;
+                        case 3:
+                            c.timer.hh = (int) value;
+                            break;
+                        case 4:
+                            c.timer.mm = (int) value;
+                            break;
+                        case 5:
+                            c.timer.ss = (int) value;
+                            break;
+                    }
+                    if (i == row) break;
+                    i++;
+                }
                 //rowData[row][col] = value;
-                fireTableCellUpdated(row, col);
+                //fireTableCellUpdated(row, col);
+                try {
+                    listCalls();
+                    save("kuki");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
