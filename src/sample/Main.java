@@ -99,7 +99,7 @@ public class Main extends Application {
             CallsController call = new CallsController();
             controller.addNewCall(c5);
 
-            //succesfully cloned to windows
+            //succesfully cloned to Windows
 
         }catch (Exception e){
             System.out.println("Balfasz");
