@@ -17,7 +17,7 @@ public class CallsController extends JFrame {
     public static TreeSet<Call> proba = new TreeSet<>();
 
     public CallsController() throws IOException, ClassNotFoundException {
-        /*Timer ti = new Timer(0,12,35);
+        Timer ti = new Timer(0,12,35);
         Timer ti2 = new Timer(1,12,35);
         Timer ti3 = new Timer(2,12,35);
         Timer ti4 = new Timer(3,12,35);
@@ -30,7 +30,7 @@ public class CallsController extends JFrame {
         proba.add(c3);
         proba.add(c4);
         c2.s = Call.Status.GET_IN;
-        c1.s = Call.Status.DONE;*/
+        c1.s = Call.Status.DONE;
         //save("kuki");
         backUp("kuki");
 
@@ -190,7 +190,7 @@ public class CallsController extends JFrame {
         this.add(btn, BorderLayout.NORTH);
 
         this.setTitle("Liftszimulátor");
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         this.pack();
         this.setVisible(true);
 

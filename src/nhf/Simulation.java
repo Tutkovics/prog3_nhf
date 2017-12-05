@@ -7,9 +7,14 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 
 import static java.lang.Thread.sleep;
 
+/**
+ * A szimuláció megjelenéséért, indításáért felelős osztály.
+ * Az egyik leggányabb, amit valaha láttam, azonban ezt a layoutmanager okozza (nagyrészt) :)
+ */
 public class Simulation extends JFrame implements Runnable, ActionListener{
     boolean simulating;
     private Container cont;
@@ -18,11 +23,14 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
     private double playSpeed;
     private Thread thread;
 
-    private JLabel timeLabel, aLabel, bLabel, cLabel, dLabel;
-    private JLabel currentLevelLabel, currentSpeedLabel, NOPLabel, DPLabel;
+    private JLabel timeLabel, aLabel, bLabel, cLabel, dLabel; //elevators title
+    private JLabel currentLevelLabel, currentSpeedLabel, NOPLabel, DPLabel;//Number Of Passengers; Done Passengers
+    private JLabel ACLLabel, BCLLabel, CCLLabel, DCLLabel;//Current Level Labels
+    private JLabel ACSLabel, BCSLabel, CCSLabel, DCSLabel;//Current Speed Labels
+    private JLabel ANOPLabel, BNOPLabel, CNOPLabel, DNOPLabel; //NOP Labels
+    private JLabel ADPLabel, BDPLabel, CDPLabel, DDPLabel; //DP labels
     private JTextArea logPane;
-    //Number Of Passengers; Done Passengers
-    private JButton startBtn, stopBtn;
+    private JButton startBtn, stopBtn, editBtn;
 
 
     public Simulation(String title){
@@ -47,7 +55,7 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
         /*ImageIcon StartButtonIcon = createImageIcon("../117999.png");
         ImageIcon StopButtonIcon = createImageIcon("../117999.png");*/
 
-
+        //// Start and Stop button ////
         startBtn = new JButton("Start");
         startBtn.setToolTipText("Szimuláció elindítása");
         startBtn.setActionCommand("start_simulating");
@@ -69,9 +77,19 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
         c.gridy = 0;
         cont.add(stopBtn, c);
 
+        editBtn = new JButton("Edit");
+        editBtn.setToolTipText("Hívások szerkesztése");
+        editBtn.setActionCommand("edit_calls");
+        editBtn.addActionListener(this);
+        editBtn.setEnabled(true);
+        c.gridx = 2;
+        c.gridy = 0;
+        cont.add(editBtn, c);
 
+        //// Timer Label ////
+        Font title = new Font("Arial", Font.PLAIN, 72);
         timeLabel = new JLabel();
-        timeLabel.setFont(new Font("Arial", Font.PLAIN, 72));
+        timeLabel.setFont(title);
         timeLabel.setText(timer.getNiceFormat());
         c.insets = new Insets(0,100,0,0);  //left padding
         c.gridy = 0;
@@ -79,18 +97,19 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
         c.gridwidth = 5;
         cont.add(timeLabel, c);
 
+        //// Titles ////
         aLabel = new JLabel("A");
-        aLabel.setFont(new Font("Arial", Font.BOLD, 72));
+        aLabel.setFont(title);
         aLabel.setOpaque(true);
         aLabel.setBackground(Color.lightGray);
-        c.insets = new Insets(0,0,0,20);
+        c.insets = new Insets(40,0,0,20);
         c.gridwidth = 1;
         c.gridy = 1;
         c.gridx = 1;
         cont.add(aLabel,c);
 
         bLabel = new JLabel("B");
-        bLabel.setFont(new Font("Arial", Font.BOLD, 72));
+        bLabel.setFont(title);
         bLabel.setOpaque(true);
         bLabel.setBackground(Color.lightGray);
         c.gridy = 1;
@@ -98,7 +117,7 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
         cont.add(bLabel,c);
 
         cLabel = new JLabel("C");
-        cLabel.setFont(new Font("Arial", Font.BOLD, 72));
+        cLabel.setFont(title);
         cLabel.setOpaque(true);
         cLabel.setBackground(Color.lightGray);
         c.gridy = 1;
@@ -106,33 +125,112 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
         cont.add(cLabel,c);
 
         dLabel = new JLabel("D");
-        dLabel.setFont(new Font("Arial", Font.BOLD, 72));
+        dLabel.setFont(title);
         dLabel.setOpaque(true);
         dLabel.setBackground(Color.lightGray);
         c.gridy = 1;
         c.gridx = 4;
         cont.add(dLabel,c);
 
+        //// Attributes ////
+        Font attribute = new Font("Arial", Font.BOLD, 18);
         currentLevelLabel = new JLabel("Aktuális emelet");
+        currentLevelLabel.setFont(attribute);
         c.insets = new Insets(10, 0, 0, 30);
         c.gridx = 0;
         c.gridy = 3;
         cont.add(currentLevelLabel, c);
 
         NOPLabel = new JLabel("Utasok száma");
+        NOPLabel.setFont(attribute);
         c.gridy = 4;
         cont.add(NOPLabel, c);
 
         DPLabel = new JLabel("Kiszolgált utasok");
+        DPLabel.setFont(attribute);
         c.gridy = 5;
         cont.add(DPLabel, c);
 
         currentSpeedLabel = new JLabel("Sebesség");
+        currentSpeedLabel.setFont(attribute);
         c.gridy = 6;
         cont.add(currentSpeedLabel, c);
 
+        //// Values of the attrubutes ////
+        // Current level
+        c.gridy = 3;
+        ACLLabel = new JLabel("15");
+        c.gridx = 1;
+        cont.add(ACLLabel, c);
+
+        BCLLabel = new JLabel("1");
+        c.gridx = 2;
+        cont.add(BCLLabel, c);
+
+        CCLLabel = new JLabel("19");
+        c.gridx = 3;
+        cont.add(CCLLabel, c);
+
+        DCLLabel = new JLabel("-1");
+        c.gridx = 4;
+        cont.add(DCLLabel, c);
+
+        //number of passengers
+        c.gridy = 4;
+        ANOPLabel = new JLabel("0");
+        c.gridx = 1;
+        cont.add(ANOPLabel,c);
+
+        BNOPLabel = new JLabel("24");
+        c.gridx = 2;
+        cont.add(BNOPLabel,c);
+
+        CNOPLabel = new JLabel("2");
+        c.gridx = 3;
+        cont.add(CNOPLabel,c);
+
+        DNOPLabel = new JLabel("0");
+        c.gridx = 4;
+        cont.add(DNOPLabel,c);
+        
+        //done passangers
+        c.gridy = 5;
+        ADPLabel = new JLabel("5");
+        c.gridx = 1;
+        cont.add(ADPLabel,c);
+
+        BDPLabel = new JLabel("32");
+        c.gridx = 2;
+        cont.add(BDPLabel,c);
+
+        CDPLabel = new JLabel("12");
+        c.gridx = 3;
+        cont.add(CDPLabel,c);
+
+        DDPLabel = new JLabel("10");
+        c.gridx = 4;
+        cont.add(DDPLabel,c);
+        
+        //speed
+        c.gridy = 6;
+        ACSLabel = new JLabel("0");
+        c.gridx = 1;
+        cont.add(ACSLabel,c);
+
+        BCSLabel = new JLabel("2.001");
+        c.gridx = 2;
+        cont.add(BCSLabel,c);
+
+        CCSLabel = new JLabel("1.23");
+        c.gridx = 3;
+        cont.add(CCSLabel,c);
+
+        DCSLabel = new JLabel("0");
+        c.gridx = 4;
+        cont.add(DCSLabel,c);
 
 
+        //// Log text panel ////
         logPane = new JTextArea();
         logPane.setEditable(false);
         logPane.setText("Helló! Itt fognak megjelenni a részletes információk az egyes hívásokról\n");
@@ -144,6 +242,7 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
         c.gridy = 7;
         c.gridx = 0;
         c.gridwidth = 7;
+        c.insets = new Insets(40,0,0,0);
         cont.add(logScrollPane, c);
 
     }
@@ -181,6 +280,7 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
             simulating = true;
             startBtn.setEnabled(false);
             stopBtn.setEnabled(true);
+            editBtn.setEnabled(false);
             timer.setTime(0,0,0);
             refresh();
             thread.start();
@@ -190,8 +290,17 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
             logPane.append("Szimuláció leállítva " + timer.getNiceFormat() + "\n");
             startBtn.setEnabled(true);
             stopBtn.setEnabled(false);
+            editBtn.setEnabled(true);
             thread.stop();
             thread = new Thread(this);
+        } else if( "edit_calls".equals(e.getActionCommand())){
+            try {
+                CallsController call = new CallsController();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            } catch (ClassNotFoundException e1) {
+                e1.printStackTrace();
+            }
         }
     }
 }
