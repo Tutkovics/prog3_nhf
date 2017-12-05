@@ -102,6 +102,9 @@ public class Main extends Application {
 
         }catch (Exception e){
             System.out.println("Balfasz");
+            System.out.println(e.getStackTrace());
+            e.printStackTrace();
+
         }
     }
 

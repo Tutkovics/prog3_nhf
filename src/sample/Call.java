@@ -27,13 +27,15 @@ public class Call implements Comparable<Call>, Serializable{
      * @param t melyik szintre akarnak utazni a lifttel
      */
     public Call(int f, int t, Timer time){
+        counter++;
         from = f;
         to = t;
         s = Status.CALLED;
         timer = time;
         id = counter;
-        counter++;
     }
+
+
 
     /**
      * Muszáj volt felülírni, különben nem tudna a <code>TreeSet</code>
