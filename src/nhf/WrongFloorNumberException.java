@@ -1,4 +1,4 @@
-package sample;
+package nhf;
 
 public class WrongFloorNumberException extends Exception{
     public String error;

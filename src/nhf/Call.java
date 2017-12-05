@@ -1,4 +1,4 @@
-package sample;
+package nhf;
 
 import java.io.Serializable;
 

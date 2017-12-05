@@ -1,4 +1,4 @@
-package sample;
+package nhf;
 
 import java.io.*;
 
@@ -35,7 +35,7 @@ public class CallsController extends JFrame {
         backUp("kuki");
 
         String[] columns = new String[]{
-                "Id", "From", "To", "Hour", "Minute", "Second", "Delete"
+                /*"Id", */"From", "To", "Hour", "Minute", "Second", "Delete"
         };
 
         //actual data for the table in a 2d array
@@ -58,7 +58,8 @@ public class CallsController extends JFrame {
             }
 
             public int getRowCount() {
-                fireTableDataChanged();return proba.size();
+                fireTableDataChanged();//refresh the table, redraw after changeing
+                return proba.size();
             }
 
             public int getColumnCount() {
@@ -66,7 +67,9 @@ public class CallsController extends JFrame {
             }
 
             public Object getValueAt(int row, int col) {
+                //Return the value of Treeset[row][col]
                 Object o = null;
+                col++;//hide id
                 int i = 0;
                 for (Call c : proba) {
                     switch (col) {
@@ -101,14 +104,18 @@ public class CallsController extends JFrame {
             }
 
             public boolean isCellEditable(int row, int col) {
+                /* col = from argument --> editable
                 if (col == 0) {
                     return false;
                 } else {
                     return true;
-                }
+                }*/
+                return true;
             }
 
             public void setValueAt(Object value, int row, int col) {
+                //Set the value: TreeSet[row][int] = value;
+                col++;//hide id
                 int i = 0;
                 for (Call c : proba) {
                     if (i == row) {
@@ -136,8 +143,7 @@ public class CallsController extends JFrame {
                     }
                     i++;
                 }
-                //rowData[row][col] = value;
-                //fireTableCellUpdated(row, col);
+
                 try {
                     listCalls();
                     save("kuki");
@@ -146,12 +152,6 @@ public class CallsController extends JFrame {
                 }
             }
 
-            public void refresh(){
-                //make the changes to the table, then call fireTableChanged
-                fireTableChanged(null);
-                fireTableRowsInserted(1, 1);
-                fireTableDataChanged();
-            }
         });
 
         table.getColumn("Delete").setCellRenderer(new ButtonRenderer());

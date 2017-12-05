@@ -1,11 +1,7 @@
-package sample;//package sample;
+package nhf;//package nhf;
 
 import org.junit.Assert;
 import org.junit.Test;
-import sample.Call;
-import sample.Timer;
-
-import static org.junit.Assert.*;
 
 public class CallTest {
     Call call1;

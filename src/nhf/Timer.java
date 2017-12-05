@@ -1,4 +1,4 @@
-package sample;
+package nhf;
 
 import java.io.Serializable;
 import java.security.InvalidParameterException;
@@ -19,6 +19,16 @@ public class Timer implements Runnable, Serializable {
      * @throws InvalidParameterException Rossz paraméterekkel lett meghívva a konstruktor
      */
     public Timer(int hour, int minute, int second) throws InvalidParameterException{
+        if( hour < 0 || minute < 0 || minute > 59 || second < 0 || second > 59){
+            throw new InvalidParameterException("Rossz formátum a Timer létrehozásakor");
+        } else {
+            hh = hour;
+            mm = minute;
+            ss = second;
+        }
+    }
+
+    public void setTime(int hour, int minute, int second) throws InvalidParameterException{
         if( hour < 0 || minute < 0 || minute > 59 || second < 0 || second > 59){
             throw new InvalidParameterException("Rossz formátum a Timer létrehozásakor");
         } else {
@@ -61,6 +71,14 @@ public class Timer implements Runnable, Serializable {
         }
     }
 
+    /**
+     * Szépen megkapjuk a timer értékét szövegesen, így megkönnyíti a kiíratásokat.
+     *
+     * @return A megformázott <code>String</code> h:mm:ss formátumban
+     */
+    public String getNiceFormat(){
+        return hh + ":" + String.format("%02d", mm) + ":" + String.format("%02d", ss);
+    }
 
     /**
      * Alkalmassá teszi az osztály példányait arra, hogy autómatikusan

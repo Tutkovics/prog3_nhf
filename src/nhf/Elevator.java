@@ -1,8 +1,6 @@
-package sample;
+package nhf;
 
-import java.util.HashSet;
 import java.util.Random;
-import java.util.Set;
 import java.util.TreeSet;
 
 import static java.lang.StrictMath.abs;
