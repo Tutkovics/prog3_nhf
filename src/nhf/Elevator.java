@@ -5,8 +5,9 @@ import java.util.TreeSet;
 
 import static java.lang.StrictMath.abs;
 import static java.lang.StrictMath.sqrt;
+import static java.lang.Thread.sleep;
 
-public class Elevator {
+public class Elevator implements Runnable {
     public String name;
     public int maxSeats, maxFloor, minFloor;
     public int actualFloor;
@@ -15,10 +16,17 @@ public class Elevator {
     private static double floorToMeter = 2.5;
     public static double openDoor = 4.0; // sec
     public static double waitTime = 8.0; // sec
+    public double actualSpeed = 0.0;
+    public int actualPassengers = 0;
+    public int donePassengers = 0;
+    private int sleepTime = 500;
+
+
+
+    public enum Status{WAIT_FOR_CALL, WORKING;}
+    public Status status;
     public TreeSet<Call> calls = new TreeSet<Call>(); // TreeSet, mert növekvő sorrendbe tárolja a szintek számát
-
     Random random = new Random();
-
 
     /**
      * A Lift osztály konstruktora, beállítjuk a lift alapvető tulajdonságait,
@@ -38,10 +46,83 @@ public class Elevator {
         minFloor = floorMin;
         acceleration = accel;
         name = nameOfElv;
+        status = Status.WAIT_FOR_CALL;
+
 
         // set to a random floor
-        //actualFloor = random.nextInt(maxFloor + 1 - minFloor) + minFloor;
-        actualFloor = 5;
+        actualFloor = random.nextInt(maxFloor + 1 - minFloor) + minFloor;
+        //actualFloor = 5;
+    }
+
+    @Override
+    public void run() {
+        System.out.println(name + " - aktuális szintje: " + actualFloor);
+
+        while (true){
+            try {
+                sleep(sleepTime);
+                runSimulation();
+            } catch (InterruptedException e) {
+                System.err.println("Error in Elevator.java");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void runSimulation() throws InterruptedException {
+        if(calls.isEmpty()){
+            status = Status.WAIT_FOR_CALL;
+        } else {
+            status = Status.WORKING;
+            //get the next stop
+            int nextStop = 1000;
+            for(Call c: calls){
+                if( c.s != Call.Status.DONE ){
+                    //if not done call
+                    if( c.s == Call.Status.CALLED){
+                        nextStop = nextStop > abs(actualFloor-c.from) ? c.from: nextStop;
+                    } else {
+                        nextStop = nextStop > abs(actualFloor - c.to) ? c.to : nextStop;
+                    }
+                }
+            }
+            System.out.println(name + " - köv. szint: "+nextStop);
+
+            goFromTo(actualFloor, nextStop);
+
+            //when arrived
+            for (Call c: calls){
+                if(c.s == Call.Status.CALLED){
+                    c.s = Call.Status.GET_IN;
+                    actualPassengers++;
+                } else if( c.s== Call.Status.GET_IN){
+                    c.s = Call.Status.DONE;
+                    donePassengers++;
+                    actualPassengers--;
+                }
+            }
+        }
+    }
+
+    private void goFromTo(int actualFloor, int nextStop) throws InterruptedException {
+        //set the attrubutes value while moving
+        double travelTime = timeBeetweenTwoFloor(actualFloor, nextStop); //in seconds
+        double spentTime = 0;
+        for ( int i = 0; i<5; i++){
+            //set params between two stop 5 times
+            sleep((long) (travelTime*200));//convert to milisec
+            spentTime+=0.2;
+
+            //get the actual speed
+            actualSpeed = getSpeedAfterStart(spentTime);
+            System.out.println(name + " - actualSpeed calculated: " + actualSpeed);
+
+        }
+    }
+
+    private double getSpeedAfterStart(double spentTime) {
+        double speed = acceleration * spentTime;
+        return speed > maxSpeed ? maxSpeed: speed;
     }
 
     /**

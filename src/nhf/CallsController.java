@@ -10,6 +10,8 @@ import java.awt.event.ActionListener;
 import java.awt.Component;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 
@@ -17,7 +19,7 @@ public class CallsController extends JFrame {
     public static TreeSet<Call> proba = new TreeSet<>();
 
     public CallsController() throws IOException, ClassNotFoundException {
-        Timer ti = new Timer(0,12,35);
+        /*Timer ti = new Timer(0,12,35);
         Timer ti2 = new Timer(1,12,35);
         Timer ti3 = new Timer(2,12,35);
         Timer ti4 = new Timer(3,12,35);
@@ -30,26 +32,13 @@ public class CallsController extends JFrame {
         proba.add(c3);
         proba.add(c4);
         c2.s = Call.Status.GET_IN;
-        c1.s = Call.Status.DONE;
+        c1.s = Call.Status.DONE;*/
         //save("kuki");
         backUp("kuki");
 
         String[] columns = new String[]{
                 /*"Id", */"From", "To", "Hour", "Minute", "Second", "Delete"
         };
-
-        //actual data for the table in a 2d array
-        /*Object[][] data = new Object[][] {
-                {c1.id, c1.from, c1.to, c1.timer.hh, c1.timer.mm, c1.timer.ss},
-                {c2.id, c2.from, c2.to, c2.timer.hh, c2.timer.mm, c2.timer.ss},
-                {c3.id, c3.from, c3.to, c3.timer.hh, c3.timer.mm, c3.timer.ss},
-        };*/
-
-
-        //create table with data
-        //Vector<Call> vec = new Vector<>(proba);
-
-        //String[] result = proba.toArray(new String[proba.size()]);
 
         //JTable table = new JTable(data, columns);
         JTable table = new JTable(new AbstractTableModel() {
@@ -187,9 +176,11 @@ public class CallsController extends JFrame {
                 }
             }
         });
+
+
         this.add(btn, BorderLayout.NORTH);
 
-        this.setTitle("Liftszimulátor");
+        this.setTitle("Hívások szerkesztése");
         this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         this.pack();
         this.setVisible(true);
