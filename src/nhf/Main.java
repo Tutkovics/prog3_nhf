@@ -14,6 +14,10 @@ import javafx.stage.Stage;
 
 import javax.swing.*;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
+
 import static java.lang.Thread.sleep;
 
 /**
@@ -26,7 +30,7 @@ import static java.lang.Thread.sleep;
  * @author  Tutkovics András
  */
 public class Main{
-
+//TODO megformázni a kódot pl: felesleges import, comment, függvény
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -39,6 +43,33 @@ public class Main{
         });
 
         try {
+//            ArrayList<Call> calls = new ArrayList<>();
+//            Timer ti = new Timer(0,12,35);
+//            Call c1 = new Call(0,1, ti);
+//            Call c2 = new Call(0,2, ti);
+//            Call c3 = new Call(0,1, ti);
+//            Call c4 = new Call(12,13, ti);
+//
+//            calls.add(c1);
+//            calls.add(c2);
+//            calls.add(c3);
+//            calls.add(c4);
+//
+//            for (Call c: calls){
+//                System.out.println(c.from + " - " + c.to);
+//            }
+//
+//            calls.sort(new Comparator<Call>() {
+//                @Override
+//                public int compare(Call o1, Call o2) {
+//                    return o1.to - o2.to;
+//                }
+//            });
+//
+//            for (Call c: calls){
+//                System.out.println(c.from + " - " + c.to);
+//            }
+
             //Elevator a = new Elevator("A",15,0,18,0.6);
 //            Elevator a = new Elevator("A",15,0,18,0.6);
 //            Elevator b = new Elevator("B",15,-1,18,0.6);
@@ -51,15 +82,7 @@ public class Main{
 //            //controller.addNewElevator(c);
 //            //controller.addNewElevator(d);
 //
-////            Timer ti = new Timer(0,12,35);
-////            Call c1 = new Call(2,3, ti);
-////            Call c2 = new Call(18,90, ti);
-////            Call c3 = new Call(1,-1, ti);
-////            Call c5 = new Call(10,5, ti);
 ////
-////            a.addCall(c1);
-//            //a.addCall(c2);
-//            //b.addCall( c3);
 //
 //
 //            /*Timer t1 = new Timer(00,59,55);
@@ -69,7 +92,12 @@ public class Main{
 //            controller.addNewCall(c5);
 //
 //            //succesfully cloned to Windows
-
+//
+//            double asd = 12.3456789;
+//            DecimalFormat format = new DecimalFormat("##.00");
+//            System.out.println(format.format(asd));
+//            System.out.println(format.format(asd));
+//            System.out.println(format.format(asd));
 
         }catch (Exception e){
             System.out.println("Balfasz");

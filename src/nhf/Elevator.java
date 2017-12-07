@@ -1,7 +1,7 @@
 package nhf;
 
-import java.util.Random;
-import java.util.TreeSet;
+import javax.swing.*;
+import java.util.*;
 
 import static java.lang.StrictMath.abs;
 import static java.lang.StrictMath.sqrt;
@@ -19,14 +19,20 @@ public class Elevator implements Runnable {
     public double actualSpeed = 0.0;
     public int actualPassengers = 0;
     public int donePassengers = 0;
+    public int playSpeed = 1;
     private int sleepTime = 500;
+
+    private JTextArea logArea;
 
 
 
     public enum Status{WAIT_FOR_CALL, WORKING;}
     public Status status;
-    public TreeSet<Call> calls = new TreeSet<Call>(); // TreeSet, mert növekvő sorrendbe tárolja a szintek számát
+
+    public ArrayList<Call> calls = new ArrayList<>(); // TreeSet, mert növekvő sorrendbe tárolja a szintek számát
+
     Random random = new Random();
+
 
     /**
      * A Lift osztály konstruktora, beállítjuk a lift alapvető tulajdonságait,
@@ -40,18 +46,18 @@ public class Elevator implements Runnable {
      * @param floorMax a legmagasabb emelet, ameddig a lift közlekedik
      * @param accel a lift gyorsulása
      */
-    public Elevator( String nameOfElv, int seats, int floorMin, int floorMax,  double accel){
+    public Elevator( String nameOfElv, int seats, int floorMin, int floorMax,  double accel, JTextArea logArea){
         maxSeats = seats;
         maxFloor = floorMax;
         minFloor = floorMin;
         acceleration = accel;
         name = nameOfElv;
         status = Status.WAIT_FOR_CALL;
+        this.logArea = logArea;
 
 
         // set to a random floor
         actualFloor = random.nextInt(maxFloor + 1 - minFloor) + minFloor;
-        //actualFloor = 5;
     }
 
     @Override
@@ -60,7 +66,7 @@ public class Elevator implements Runnable {
 
         while (true){
             try {
-                sleep(sleepTime);
+                sleep(sleepTime/playSpeed);
                 runSimulation();
             } catch (InterruptedException e) {
                 System.err.println("Error in Elevator.java");
@@ -70,7 +76,13 @@ public class Elevator implements Runnable {
     }
 
     private void runSimulation() throws InterruptedException {
-        if(calls.isEmpty()){
+        boolean isValidCall = false;
+        for(Call c: calls){
+            if(c.s != Call.Status.DONE){
+                isValidCall = true;
+            }
+        }
+        if(!isValidCall){
             status = Status.WAIT_FOR_CALL;
         } else {
             status = Status.WORKING;
@@ -91,6 +103,7 @@ public class Elevator implements Runnable {
             goFromTo(actualFloor, nextStop);
 
             //when arrived
+            actualFloor = nextStop;
             for (Call c: calls){
                 if(c.s == Call.Status.CALLED){
                     c.s = Call.Status.GET_IN;
@@ -100,6 +113,13 @@ public class Elevator implements Runnable {
                     donePassengers++;
                     actualPassengers--;
                 }
+                //open the door, wait and close
+                logArea.append(name + " - Ajtó nyitás\n");
+                sleep((long) openDoor*1000/playSpeed);
+                logArea.append(name + " - Várakozás be- és kiszállásra\n");
+                sleep((long) waitTime*1000/playSpeed);
+                logArea.append(name + " - Ajtó csukás\n");
+                sleep((long) openDoor*1000/playSpeed);
             }
         }
     }
@@ -110,11 +130,12 @@ public class Elevator implements Runnable {
         double spentTime = 0;
         for ( int i = 0; i<5; i++){
             //set params between two stop 5 times
-            sleep((long) (travelTime*200));//convert to milisec
-            spentTime+=0.2;
+            sleep((long) (travelTime*200/playSpeed));//convert to milisec
+            spentTime+=travelTime/5;
 
             //get the actual speed
             actualSpeed = getSpeedAfterStart(spentTime);
+//            TODO figyelni, hogy kezelje a lassulást is
             System.out.println(name + " - actualSpeed calculated: " + actualSpeed);
 
         }
@@ -134,8 +155,92 @@ public class Elevator implements Runnable {
      * @return érkezési idő
      */
     public double calculateArrivalTime(Call call){
+
+        double time = 0; //sum the times in second
+        boolean empty = true;
+        for(Call c: calls){
+            if( c.s != Call.Status.DONE){
+                //.isEmpty not good because we store every calls even that we processed the call
+                empty = false;
+                break;
+            }
+        }
+
+        if(empty){
+            //we could go caller's floor
+            time = timeBeetweenTwoFloor(actualFloor, call.from);
+            System.out.println(name + " - Rögtön tud menni a " + call.from + ". szintre.");
+        } else {
+            //if the elevator has passengers
+            // 2 options: útba esik, ki kell üríteni magát
+
+            boolean canGet = false;
+            for (Call c: calls){
+                if(c.s != Call.Status.DONE){
+                    if( c.s == Call.Status.GET_IN){
+                        if(actualFloor < c.to && actualFloor < call.from ||
+                                actualFloor >c.to && actualFloor > call.from){
+                            canGet = true;
+                            System.out.println(name + " - canGet = " + canGet);
+                        }
+                    }
+                }
+            }
+
+            if( canGet ){
+                //we can stop in callers floor
+                calls.sort(new Comparator<Call>() {
+                    //we sort by destination
+                    @Override
+                    public int compare(Call o1, Call o2) {
+                        return o1.to - o2.to;
+                    }
+                });
+
+                TreeSet<Integer> needToStop = new TreeSet<>();
+
+                for(Call c: calls){
+                    //get the floors where we needd to stop
+                    if(c.s != Call.Status.DONE){
+                        if(c.s == Call.Status.GET_IN){
+                            needToStop.add(c.to);
+                        } else {
+                            needToStop.add(c.from);
+                        }
+                    }
+                }
+                List<Integer> sortedStops = new ArrayList(needToStop);
+                Collections.sort(sortedStops);
+
+                int stops = 0;
+                Integer previous = null;
+                for(Integer i: sortedStops){
+                    if( !isBetween(previous, i, call.from)){
+                        //while there is more stops
+                        time += timeBeetweenTwoFloor(previous,i);
+                        stops++;
+                    }
+                    previous = i;
+                }
+                time += stops*(openDoor*2+waitTime);
+            } else{
+                //need to serve passengers
+                Call previous = null;
+                for(Call c: calls){
+                    if(c.s != Call.Status.GET_IN && previous != null){
+                        time += timeBeetweenTwoFloor(previous.to, c.to);
+                        time += openDoor*2+waitTime;
+                    }
+                    previous = c;
+                }
+            }
+
+        }
+        return time;
+
         // sum the time beetween floors
-        double time;
+        /*double time;
+
         if( calls.isEmpty()){
             // Ha üres a lift rögtön tud menni a hívó szintjére
             time = timeBeetweenTwoFloor(actualFloor, call.from);
@@ -183,6 +288,7 @@ public class Elevator implements Runnable {
         }
 
         return time;
+        */
     }
 
     /**
@@ -226,4 +332,13 @@ public class Elevator implements Runnable {
     }
 
 
+    public boolean isBetween( Integer from, Integer to, Integer x){
+        int bigger = Integer.max(from, to);
+        int smaller = Integer.min(from, to);
+
+        if(smaller < x && bigger > x){
+            return true;
+        }
+        return false;
+    }
 }

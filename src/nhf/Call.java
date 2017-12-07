@@ -35,8 +35,6 @@ public class Call implements Comparable<Call>, Serializable{
         id = counter;
     }
 
-
-
     /**
      * Muszáj volt felülírni, különben nem tudna a <code>TreeSet</code>
      * valami sorrendet felállítani köztük.
@@ -46,7 +44,6 @@ public class Call implements Comparable<Call>, Serializable{
      */
     @Override
     public int compareTo(Call o) {
-
         return this.to - o.to;
     }
 }

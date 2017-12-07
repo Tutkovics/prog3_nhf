@@ -1,10 +1,22 @@
 package nhf;
 
+import javax.swing.*;
 import java.util.HashSet;
 import java.util.Set;
 
 public class ElevatorController {
     public Set<Elevator> elevatorSet = new HashSet<Elevator>();
+    private JTextArea logArea;
+
+    public ElevatorController(JTextArea logArea){
+        this.logArea = logArea;
+    }
+
+    public void setSimulateSpeed(int newSpeed) {
+        for(Elevator e: elevatorSet){
+            e.playSpeed = newSpeed;
+        }
+    }
 
     /**
      * Új liftet lehet hozzáadni a liftek listájához. Ezen liftek között fogja
@@ -14,6 +26,7 @@ public class ElevatorController {
      */
     public void addNewElevator(Elevator ele){
         elevatorSet.add(ele);
+        logArea.append(ele.name + " - Hozzáadva a szimulációhoz.\n");
     }
 
 
@@ -29,6 +42,7 @@ public class ElevatorController {
         Elevator fastest = elevatorSet.iterator().next();
         double time, fastestTime = 1000.0;
 
+        logArea.append("Új hívás - " + call.from + " --> " + call.to + "(" + call.timer.getNiceFormat() + ")\n" );
 
         for( Elevator e: elevatorSet){
             if( (call.from <= e.maxFloor && call.from >= e.minFloor) && (call.to <= e.maxFloor && call.to >= e.minFloor)){
@@ -47,6 +61,7 @@ public class ElevatorController {
         }
 
         System.out.println("Leggyorsabb lift: " + fastest.name);
+        logArea.append("\tLeggyorsabb: " + fastest.name + "\n");
         fastest.addCall(call);
     }
 }

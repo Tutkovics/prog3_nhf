@@ -9,7 +9,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.io.IOException;
+import java.io.*;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
 
 import static java.lang.Thread.sleep;
 
@@ -18,12 +22,12 @@ import static java.lang.Thread.sleep;
  * Az egyik leggányabb, amit valaha láttam, azonban ezt a layoutmanager okozza (nagyrészt) :)
  */
 public class Simulation extends JFrame implements Runnable, ActionListener{
-    boolean simulating;
+    private boolean simulating;
     private Container cont;
     private Timer timer;
     GridBagConstraints c;
     public int playSpeed;
-    private Thread thread;
+    private Thread thread, aThread, bThread, cThread, dThread;
     private Color free, busy;
 
     private JLabel timeLabel, aLabel, bLabel, cLabel, dLabel; //elevators title
@@ -37,6 +41,8 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
 
     private Elevator aElevator, bElevator, cElevator, dElevator;
     private ElevatorController controller;
+
+    private ArrayList<Call> calls;
 
 
     public Simulation(String title){
@@ -56,23 +62,34 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
 
         thread = new Thread( this);
 
+
+        addComponents();
+
         //construct the elevators
-        aElevator = new Elevator("A",15,0,18,0.6);
-        bElevator = new Elevator("B",15,-1,18,0.6);
-        cElevator = new Elevator("C",20,-1,18,0.6);
-        dElevator = new Elevator("D",20,-1,18,0.5);
+        aElevator = new Elevator("A",15,0,18,0.6, logPane);
+        bElevator = new Elevator("B",15,-1,18,0.6, logPane);
+        cElevator = new Elevator("C",20,-1,18,0.6, logPane);
+        dElevator = new Elevator("D",20,-1,18,0.5, logPane);
         //cElevator.status = Elevator.Status.WORKING;
 
-        controller = new ElevatorController();
+        controller = new ElevatorController(logPane);
         controller.addNewElevator(aElevator);
         controller.addNewElevator(bElevator);
         controller.addNewElevator(cElevator);
         controller.addNewElevator(dElevator);
 
-        addComponents();
+        refresh();
+    }
+
+    private void initCalls() throws IOException, ClassNotFoundException {
+        File inputFile = new File("calls.dat");
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(inputFile));
+        calls = (ArrayList<Call>) ois.readObject();
+        ois.close();
     }
 
     private void addComponents() {
+//TODO kiszedni az alapértelmezett értékeket
         //start and stop button
         /*ImageIcon StartButtonIcon = createImageIcon("../117999.png");
         ImageIcon StopButtonIcon = createImageIcon("../117999.png");*/
@@ -255,7 +272,6 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
         //// Log text panel ////
         logPane = new JTextArea();
         logPane.setEditable(false);
-        logPane.setText("Log\n");
 
         JScrollPane logScrollPane = new JScrollPane(logPane);
         logScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -283,6 +299,7 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
             public void stateChanged(ChangeEvent e) {
                 JSlider source = (JSlider) e.getSource();
                 playSpeed = source.getValue();
+                controller.setSimulateSpeed(playSpeed);
                 System.out.println("New play speed --> " + playSpeed);
             }
         });
@@ -317,10 +334,11 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
         CCLLabel.setText(String.valueOf(cElevator.actualFloor));
         DCLLabel.setText(String.valueOf(dElevator.actualFloor));
 
-        ACSLabel.setText(String.valueOf(aElevator.actualSpeed));
-        BCSLabel.setText(String.valueOf(bElevator.actualSpeed));
-        CCSLabel.setText(String.valueOf(cElevator.actualSpeed));
-        DCSLabel.setText(String.valueOf(dElevator.actualSpeed));
+        DecimalFormat format = new DecimalFormat("##0.00");
+        ACSLabel.setText(String.valueOf(format.format(aElevator.actualSpeed)));
+        BCSLabel.setText(String.valueOf(format.format(bElevator.actualSpeed)));
+        CCSLabel.setText(String.valueOf(format.format(cElevator.actualSpeed)));
+        DCSLabel.setText(String.valueOf(format.format(dElevator.actualSpeed)));
 
         ANOPLabel.setText(String.valueOf(aElevator.actualPassengers));
         BNOPLabel.setText(String.valueOf(bElevator.actualPassengers));
@@ -337,20 +355,65 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
     @Override
     public void run() {
 
-        controller.addNewCall(new Call(0,13, new Timer(0,0,5)));
+        //remove earlier calls from elevatros
+        aElevator.calls.clear();
+        bElevator.calls.clear();
+        cElevator.calls.clear();
+        dElevator.calls.clear();
 
-        (new Thread(aElevator)).start();
-        (new Thread(bElevator)).start();
-        (new Thread(cElevator)).start();
-        (new Thread(dElevator)).start();
+        //start elevators' threads
+        aThread.start();
+        bThread.start();
+        cThread.start();
+        dThread.start();
+
+        try {
+            initCalls(); //read the calls from file
+            logPane.append("Hívások beolvasva (" + calls.size()+ "db)\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        calls.sort(new Comparator<Call>() {
+            @Override
+            public int compare(Call o1, Call o2) {
+                if( o1.timer.hh != o2.timer.hh){
+                    return o1.timer.hh - o2.timer.hh;
+                } else {
+                    if( o1.timer.mm != o2.timer.mm){
+                        return o1.timer.mm - o2.timer.mm;
+                    } else {
+                        if(o1.timer.ss != o2.timer.ss){
+                            return o1.timer.ss - o2.timer.ss;
+                        } else {
+                            return 0;
+                        }
+                    }
+                }
+            }
+        });
 
 
         int sleepTime;
+        int doneCalls = 0;
+        Call call = null;
+
         while(simulating){
-            timer.addSecond();
+            if(doneCalls == calls.size()){
+//                TODO stop the simulation
+            } else {
+                call = calls.get(doneCalls);
+                if(call.timer.equals(timer)){
+                    controller.addNewCall(call);
+                    doneCalls++;
+                }
+            }
+
             sleepTime = Math.round(1000/playSpeed);
             refresh();
-
+            timer.addSecond();
             try{
                 sleep(sleepTime);
             } catch (InterruptedException ex){
@@ -364,13 +427,17 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
         if("start_simulating".equals(e.getActionCommand())){
             simulating = true;
             //System.out.println("szimuláció elindítva");
-            logPane.append("Szimuláció elindítva\n");
+            logPane.append("Szimuláció elindítva (" + playSpeed + "x)\n");
             startBtn.setEnabled(false);
             stopBtn.setEnabled(true);
             editBtn.setEnabled(false);
             timer.setTime(0,0,0);
             refresh();
             thread = new Thread(this);
+            aThread = new Thread( aElevator);
+            bThread = new Thread( bElevator);
+            cThread = new Thread( cElevator);
+            dThread = new Thread( dElevator);
             thread.start();
         } else if("stop_simulating".equals(e.getActionCommand())){
             simulating = false;
@@ -380,6 +447,10 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
             stopBtn.setEnabled(false);
             editBtn.setEnabled(true);
             thread.stop();
+            aThread.stop();
+            bThread.stop();
+            cThread.stop();
+            dThread.stop();
         } else if( "edit_calls".equals(e.getActionCommand())){
             try {
                 CallsController call = new CallsController();

@@ -28,6 +28,15 @@ public class Timer implements Runnable, Serializable {
         }
     }
 
+    /**
+     * Lehetőséget biztosít, hogy már meglévő <code>Timer</code> objektumnak
+     * átállítsuk az értékeit.
+     *
+     * @param hour új óra
+     * @param minute új perc
+     * @param second új másodperc
+     * @throws InvalidParameterException ha helytelen formátumot adunl meg
+     */
     public void setTime(int hour, int minute, int second) throws InvalidParameterException{
         if( hour < 0 || minute < 0 || minute > 59 || second < 0 || second > 59){
             throw new InvalidParameterException("Rossz formátum a Timer létrehozásakor");

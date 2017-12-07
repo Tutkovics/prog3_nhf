@@ -2,6 +2,8 @@ package nhf;
 
 import java.io.*;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.TreeSet;
 
 import java.awt.*;
@@ -16,25 +18,25 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 
 public class CallsController extends JFrame {
-    public static TreeSet<Call> proba = new TreeSet<>();
+    public static ArrayList<Call> proba = new ArrayList<>();
 
     public CallsController() throws IOException, ClassNotFoundException {
-        /*Timer ti = new Timer(0,12,35);
-        Timer ti2 = new Timer(1,12,35);
-        Timer ti3 = new Timer(2,12,35);
-        Timer ti4 = new Timer(3,12,35);
-        Call c1 = new Call(1,2, ti);
-        Call c2 = new Call(10,9, ti2);
-        Call c3 = new Call(3,-1, ti3);
-        Call c4 = new Call(1,-100, ti4);
-        proba.add(c1);
-        proba.add(c2);
-        proba.add(c3);
-        proba.add(c4);
-        c2.s = Call.Status.GET_IN;
-        c1.s = Call.Status.DONE;*/
-        //save("kuki");
-        backUp("kuki");
+//        Timer ti = new Timer(0,12,35);
+//        Timer ti2 = new Timer(1,12,35);
+//        Timer ti3 = new Timer(2,12,35);
+//        Timer ti4 = new Timer(3,12,35);
+//        Call c1 = new Call(1,2, ti);
+//        Call c2 = new Call(10,9, ti2);
+//        Call c3 = new Call(3,-1, ti3);
+//        Call c4 = new Call(1,-100, ti4);
+//        proba.add(c1);
+//        proba.add(c2);
+//        proba.add(c3);
+//        proba.add(c4);
+//        c2.s = Call.Status.GET_IN;
+//        c1.s = Call.Status.DONE;
+//        save("calls.dat");
+        backUp("calls.dat");
 
         String[] columns = new String[]{
                 /*"Id", */"From", "To", "Hour", "Minute", "Second", "Delete"
@@ -135,7 +137,7 @@ public class CallsController extends JFrame {
 
                 try {
                     listCalls();
-                    save("kuki");
+                    save("calls.dat");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -170,7 +172,7 @@ public class CallsController extends JFrame {
                 table.getRowCount();
                 //fireTableChanged(null);
                 try {
-                    save("kuki");
+                    save("calls.dat");
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
@@ -192,6 +194,24 @@ public class CallsController extends JFrame {
     public static void save(String fileName) throws IOException {
         File outputFile = new File(fileName);
         ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(outputFile));
+        proba.sort(new Comparator<Call>() {
+            @Override
+            public int compare(Call o1, Call o2) {
+                if( o1.timer.hh != o2.timer.hh){
+                    return o1.timer.hh - o2.timer.hh;
+                } else {
+                    if( o1.timer.mm != o2.timer.mm){
+                        return o1.timer.mm - o2.timer.mm;
+                    } else {
+                        if(o1.timer.ss != o2.timer.ss){
+                            return o1.timer.ss - o2.timer.ss;
+                        } else {
+                            return 0;
+                        }
+                    }
+                }
+            }
+        });
         oos.writeObject(proba);
         oos.close();
     }
@@ -199,7 +219,7 @@ public class CallsController extends JFrame {
     public static void backUp(String fileName) throws IOException, ClassNotFoundException {
         File inputFile = new File(fileName);
         ObjectInputStream ois = new ObjectInputStream(new FileInputStream(inputFile));
-        proba = (TreeSet<Call>) ois.readObject();
+        proba = (ArrayList<Call>) ois.readObject();
         ois.close();
     }
 
