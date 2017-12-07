@@ -38,6 +38,9 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
     private JLabel ADPLabel, BDPLabel, CDPLabel, DDPLabel; //DP labels
     private JTextArea logPane;
     private JButton startBtn, stopBtn, editBtn;
+//    private JMenu menu;
+//    private JMenuItem edit, simulation;
+//    private JMenuBar menuBar;
 
     private Elevator aElevator, bElevator, cElevator, dElevator;
     private ElevatorController controller;
@@ -47,6 +50,8 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
 
     public Simulation(String title){
         super(title);
+        //// Menu ////
+
 
         //set layout manager
         setLayout(new GridBagLayout());
@@ -93,6 +98,8 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
         //start and stop button
         /*ImageIcon StartButtonIcon = createImageIcon("../117999.png");
         ImageIcon StopButtonIcon = createImageIcon("../117999.png");*/
+
+        createMenu();
 
         //// Start and Stop button ////
         startBtn = new JButton("Start");
@@ -309,6 +316,33 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
         c.gridheight = 6;
         cont.add(speedSlider, c);
 
+    }
+
+    private void createMenu() {
+        JMenuBar menubar = new JMenuBar();
+
+        JMenu menu = new JMenu("Menu");
+        menu.setMnemonic(KeyEvent.VK_M);
+
+        JMenuItem editMenuItem = new JMenuItem("Hívások");
+        editMenuItem.setMnemonic(KeyEvent.VK_H);
+        editMenuItem.setToolTipText("Hívások szerkesztése");
+        editMenuItem.setActionCommand("edit_calls");
+        editMenuItem.addActionListener(this);
+
+        JMenuItem eMenuItem = new JMenuItem("Bezár");
+        eMenuItem.setMnemonic(KeyEvent.VK_B);
+        eMenuItem.setToolTipText("Alkalmazás bezárása");
+        eMenuItem.addActionListener((ActionEvent event) -> {
+            System.exit(0);
+        });
+
+        menu.add(editMenuItem);
+        menu.add(eMenuItem);
+
+        menubar.add(menu);
+
+        setJMenuBar(menubar);
     }
 
     protected static ImageIcon createImageIcon(String path) {
