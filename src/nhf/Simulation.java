@@ -354,12 +354,7 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
 
     @Override
     public void run() {
-
-        //remove earlier calls from elevatros
-        aElevator.calls.clear();
-        bElevator.calls.clear();
-        cElevator.calls.clear();
-        dElevator.calls.clear();
+        cleanElevatorsAttribute();
 
         //start elevators' threads
         aThread.start();
@@ -404,11 +399,23 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
             if(doneCalls == calls.size()){
 //                TODO stop the simulation
             } else {
-                call = calls.get(doneCalls);
-                if(call.timer.equals(timer)){
+                /*call = calls.get(doneCalls);
+
+                while(call.timer.equals(calls.get(doneCalls))){
                     controller.addNewCall(call);
                     doneCalls++;
-                }
+                }*/
+                do{
+                    call = calls.get(doneCalls);
+                    if(call.timer.equals(timer)){
+                        controller.addNewCall(call);
+                        doneCalls++;
+                    }
+                    if(doneCalls == calls.size()){
+                        break;
+                    }
+                }while (call.timer.equals(calls.get(doneCalls)));
+
             }
 
             sleepTime = Math.round(1000/playSpeed);
@@ -420,6 +427,38 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
 
             }
         }
+    }
+
+    private void cleanElevatorsAttribute() {
+        //remove earlier calls from elevatros
+        aElevator.calls.clear();
+        bElevator.calls.clear();
+        cElevator.calls.clear();
+        dElevator.calls.clear();
+        
+        //set currentSpeed to 0
+        aElevator.actualSpeed = 0.0;
+        bElevator.actualSpeed = 0.0;
+        cElevator.actualSpeed = 0.0;
+        dElevator.actualSpeed = 0.0;
+        
+        //set elevators' status to default
+        aElevator.status = Elevator.Status.WAIT_FOR_CALL;
+        bElevator.status = Elevator.Status.WAIT_FOR_CALL;
+        cElevator.status = Elevator.Status.WAIT_FOR_CALL;
+        dElevator.status = Elevator.Status.WAIT_FOR_CALL;
+        
+        //set actual passengers to 0
+        aElevator.actualPassengers = 0;
+        bElevator.actualPassengers = 0;
+        cElevator.actualPassengers = 0;
+        dElevator.actualPassengers = 0;
+
+        //set done passengers to 0
+        aElevator.donePassengers = 0;
+        bElevator.donePassengers = 0;
+        cElevator.donePassengers = 0;
+        dElevator.donePassengers = 0;
     }
 
 
@@ -461,4 +500,5 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
             }
         }
     }
+
 }

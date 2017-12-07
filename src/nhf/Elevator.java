@@ -115,6 +115,7 @@ public class Elevator implements Runnable {
                 }
                 //open the door, wait and close
                 logArea.append(name + " - Ajtó nyitás\n");
+                actualSpeed = 0.0;
                 sleep((long) openDoor*1000/playSpeed);
                 logArea.append(name + " - Várakozás be- és kiszállásra\n");
                 sleep((long) waitTime*1000/playSpeed);
