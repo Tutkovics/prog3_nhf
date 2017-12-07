@@ -4,7 +4,6 @@ import java.io.*;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.TreeSet;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -12,13 +11,11 @@ import java.awt.event.ActionListener;
 import java.awt.Component;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 
 public class CallsController extends JFrame {
-    public static ArrayList<Call> proba = new ArrayList<>();
+    public static ArrayList<Call> temp_calls = new ArrayList<>();
 
     public CallsController() throws IOException, ClassNotFoundException {
 //        Timer ti = new Timer(0,12,35);
@@ -29,10 +26,10 @@ public class CallsController extends JFrame {
 //        Call c2 = new Call(10,9, ti2);
 //        Call c3 = new Call(3,-1, ti3);
 //        Call c4 = new Call(1,-100, ti4);
-//        proba.add(c1);
-//        proba.add(c2);
-//        proba.add(c3);
-//        proba.add(c4);
+//        temp_calls.add(c1);
+//        temp_calls.add(c2);
+//        temp_calls.add(c3);
+//        temp_calls.add(c4);
 //        c2.s = Call.Status.GET_IN;
 //        c1.s = Call.Status.DONE;
 //        save("calls.dat");
@@ -50,7 +47,7 @@ public class CallsController extends JFrame {
 
             public int getRowCount() {
                 fireTableDataChanged();//refresh the table, redraw after changeing
-                return proba.size();
+                return temp_calls.size();
             }
 
             public int getColumnCount() {
@@ -62,7 +59,7 @@ public class CallsController extends JFrame {
                 Object o = null;
                 col++;//hide id
                 int i = 0;
-                for (Call c : proba) {
+                for (Call c : temp_calls) {
                     switch (col) {
                         case 0:
                             o = c.id;
@@ -108,7 +105,7 @@ public class CallsController extends JFrame {
                 //Set the value: TreeSet[row][int] = value;
                 col++;//hide id
                 int i = 0;
-                for (Call c : proba) {
+                for (Call c : temp_calls) {
                     if (i == row) {
                         switch (col) {
                             case 0:
@@ -167,8 +164,8 @@ public class CallsController extends JFrame {
                         Integer.parseInt(JOptionPane.showInputDialog("To: ")),
                         ti
                 );
-                //proba.add(new Call(0, 0, new Timer(0, 0, 0)));
-                proba.add(call);
+                //temp_calls.add(new Call(0, 0, new Timer(0, 0, 0)));
+                temp_calls.add(call);
                 table.getRowCount();
                 //fireTableChanged(null);
                 try {
@@ -194,7 +191,7 @@ public class CallsController extends JFrame {
     public static void save(String fileName) throws IOException {
         File outputFile = new File(fileName);
         ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(outputFile));
-        proba.sort(new Comparator<Call>() {
+        temp_calls.sort(new Comparator<Call>() {
             @Override
             public int compare(Call o1, Call o2) {
                 if( o1.timer.hh != o2.timer.hh){
@@ -212,19 +209,24 @@ public class CallsController extends JFrame {
                 }
             }
         });
-        oos.writeObject(proba);
+        oos.writeObject(temp_calls);
         oos.close();
     }
 
-    public static void backUp(String fileName) throws IOException, ClassNotFoundException {
+    public static void backUp(String fileName) {
         File inputFile = new File(fileName);
-        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(inputFile));
-        proba = (ArrayList<Call>) ois.readObject();
-        ois.close();
+        try {
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(inputFile));
+            temp_calls = (ArrayList<Call>) ois.readObject();
+            ois.close();
+            System.err.println("Fasz");
+        }catch (IOException | ClassNotFoundException e){
+            temp_calls = new ArrayList<Call>();
+        }
     }
 
     public static void listCalls() {
-        for (Call c : proba) {
+        for (Call c : temp_calls) {
             System.out.println("ID: " + c.id + " From: " + c.from + " To: " + c.to + " Status: " + c.s +
                     " Timer: " + c.timer.hh + ":" + c.timer.mm + ":" + c.timer.ss);
         }
@@ -304,14 +306,14 @@ public class CallsController extends JFrame {
             if (isPushed) {
                 Call call = null;
                 int i = 0;
-                for(Call c: proba){
+                for(Call c: temp_calls){
                     if(i == row){
                         call = c;
                         break;
                     }
                     i++;
                 }
-                proba.remove(call);
+                temp_calls.remove(call);
                 JOptionPane.showMessageDialog(button, "Successfully deleted!");
 
                 // System.out.println(label + ": Ouch!");

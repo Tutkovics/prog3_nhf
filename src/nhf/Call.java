@@ -13,12 +13,12 @@ import java.io.Serializable;
  */
 public class Call implements Comparable<Call>, Serializable{
     enum Status{ CALLED, GET_IN, DONE }
-    public static int counter = 0;
-    public int from;
-    public int to;
-    public Status s;
-    public Timer timer;
-    public int id;
+    private static int counter = 0;
+    int from;
+    int to;
+    Status s;
+    Timer timer;
+    int id;
 
     /**
      * A <code>Call</code> osztály konstruktora.

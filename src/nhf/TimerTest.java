@@ -22,7 +22,7 @@ public class TimerTest {
     @Test
     public void equalTest(){
         boolean equal = timer1.equals(new Timer(11,43,59));
-        Assert.assertTrue(equal);
+        Assert.assertFalse(equal);
     }
 
     @Test

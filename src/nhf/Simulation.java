@@ -4,7 +4,6 @@ package nhf;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,7 +12,6 @@ import java.io.*;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Iterator;
 
 import static java.lang.Thread.sleep;
 
@@ -21,7 +19,7 @@ import static java.lang.Thread.sleep;
  * A szimuláció megjelenéséért, indításáért felelős osztály.
  * Az egyik leggányabb, amit valaha láttam, azonban ezt a layoutmanager okozza (nagyrészt) :)
  */
-public class Simulation extends JFrame implements Runnable, ActionListener{
+public class Simulation extends JFrame implements Runnable, ActionListener {
     private boolean simulating;
     private Container cont;
     private Timer timer;
@@ -38,9 +36,6 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
     private JLabel ADPLabel, BDPLabel, CDPLabel, DDPLabel; //DP labels
     private JTextArea logPane;
     private JButton startBtn, stopBtn, editBtn;
-//    private JMenu menu;
-//    private JMenuItem edit, simulation;
-//    private JMenuBar menuBar;
 
     private Elevator aElevator, bElevator, cElevator, dElevator;
     private ElevatorController controller;
@@ -48,35 +43,32 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
     private ArrayList<Call> calls;
 
 
-    public Simulation(String title){
+    public Simulation(String title) {
         super(title);
-        //// Menu ////
-
 
         //set layout manager
-        setLayout(new GridBagLayout());
+        setLayout(new GridBagLayout());//--> wrong choice
         c = new GridBagConstraints();
 
         //set the variables
         cont = getContentPane();
-        timer = new Timer(0,0,0);
-        playSpeed = 1;
+        timer = new Timer(0, 0, 0);
+        playSpeed = 1;//default speed
 
         free = new Color(140, 217, 140);
         busy = new Color(255, 128, 128);
 
-        thread = new Thread( this);
-
+        thread = new Thread(this);
 
         addComponents();
 
         //construct the elevators
-        aElevator = new Elevator("A",15,0,18,0.6, logPane);
-        bElevator = new Elevator("B",15,-1,18,0.6, logPane);
-        cElevator = new Elevator("C",20,-1,18,0.6, logPane);
-        dElevator = new Elevator("D",20,-1,18,0.5, logPane);
-        //cElevator.status = Elevator.Status.WORKING;
+        aElevator = new Elevator("A", 15, 0, 18, 0.6, logPane);
+        bElevator = new Elevator("B", 15, -1, 18, 0.6, logPane);
+        cElevator = new Elevator("C", 20, -1, 18, 0.6, logPane);
+        dElevator = new Elevator("D", 20, -1, 18, 0.5, logPane);
 
+        //add them to ElevatorController
         controller = new ElevatorController(logPane);
         controller.addNewElevator(aElevator);
         controller.addNewElevator(bElevator);
@@ -94,10 +86,6 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
     }
 
     private void addComponents() {
-//TODO kiszedni az alapértelmezett értékeket
-        //start and stop button
-        /*ImageIcon StartButtonIcon = createImageIcon("../117999.png");
-        ImageIcon StopButtonIcon = createImageIcon("../117999.png");*/
 
         createMenu();
 
@@ -108,7 +96,6 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
         startBtn.addActionListener(this);
         startBtn.setEnabled(true);
         c.fill = GridBagConstraints.HORIZONTAL;
-        //c.weightx = 0.5;
         c.gridy = 0;
         c.gridx = 0;
         cont.add(startBtn, c);
@@ -137,7 +124,7 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
         timeLabel = new JLabel();
         timeLabel.setFont(title);
         timeLabel.setText(timer.getNiceFormat());
-        c.insets = new Insets(0,100,0,0);  //left padding
+        c.insets = new Insets(0, 100, 0, 0);  //left padding
         c.gridy = 0;
         c.gridx = 2;
         c.gridwidth = 5;
@@ -147,36 +134,32 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
         aLabel = new JLabel("A");
         aLabel.setFont(title);
         aLabel.setOpaque(true);
-        //aLabel.setBackground(Color.lightGray);
-        c.insets = new Insets(40,0,0,20);
+        c.insets = new Insets(40, 0, 0, 20);
         c.gridwidth = 1;
         c.gridy = 1;
         c.gridx = 1;
-        cont.add(aLabel,c);
+        cont.add(aLabel, c);
 
         bLabel = new JLabel("B");
         bLabel.setFont(title);
         bLabel.setOpaque(true);
-        //bLabel.setBackground(Color.lightGray);
         c.gridy = 1;
         c.gridx = 2;
-        cont.add(bLabel,c);
+        cont.add(bLabel, c);
 
         cLabel = new JLabel("C");
         cLabel.setFont(title);
         cLabel.setOpaque(true);
-        //cLabel.setBackground(Color.lightGray);
         c.gridy = 1;
         c.gridx = 3;
-        cont.add(cLabel,c);
+        cont.add(cLabel, c);
 
         dLabel = new JLabel("D");
         dLabel.setFont(title);
         dLabel.setOpaque(true);
-        //dLabel.setBackground(Color.lightGray);
         c.gridy = 1;
         c.gridx = 4;
-        cont.add(dLabel,c);
+        cont.add(dLabel, c);
 
         //// Attributes ////
         Font attribute = new Font("Arial", Font.BOLD, 18);
@@ -223,57 +206,57 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
 
         //number of passengers
         c.gridy = 4;
-        ANOPLabel = new JLabel("0");
+        ANOPLabel = new JLabel();
         c.gridx = 1;
-        cont.add(ANOPLabel,c);
+        cont.add(ANOPLabel, c);
 
-        BNOPLabel = new JLabel("24");
+        BNOPLabel = new JLabel();
         c.gridx = 2;
-        cont.add(BNOPLabel,c);
+        cont.add(BNOPLabel, c);
 
-        CNOPLabel = new JLabel("2");
+        CNOPLabel = new JLabel();
         c.gridx = 3;
-        cont.add(CNOPLabel,c);
+        cont.add(CNOPLabel, c);
 
-        DNOPLabel = new JLabel("0");
+        DNOPLabel = new JLabel();
         c.gridx = 4;
-        cont.add(DNOPLabel,c);
-        
+        cont.add(DNOPLabel, c);
+
         //done passengers
         c.gridy = 5;
-        ADPLabel = new JLabel("5");
+        ADPLabel = new JLabel();
         c.gridx = 1;
-        cont.add(ADPLabel,c);
+        cont.add(ADPLabel, c);
 
-        BDPLabel = new JLabel("32");
+        BDPLabel = new JLabel();
         c.gridx = 2;
-        cont.add(BDPLabel,c);
+        cont.add(BDPLabel, c);
 
-        CDPLabel = new JLabel("12");
+        CDPLabel = new JLabel();
         c.gridx = 3;
-        cont.add(CDPLabel,c);
+        cont.add(CDPLabel, c);
 
-        DDPLabel = new JLabel("10");
+        DDPLabel = new JLabel();
         c.gridx = 4;
-        cont.add(DDPLabel,c);
-        
+        cont.add(DDPLabel, c);
+
         //speed
         c.gridy = 6;
-        ACSLabel = new JLabel("0");
+        ACSLabel = new JLabel();
         c.gridx = 1;
-        cont.add(ACSLabel,c);
+        cont.add(ACSLabel, c);
 
-        BCSLabel = new JLabel("2.001");
+        BCSLabel = new JLabel();
         c.gridx = 2;
-        cont.add(BCSLabel,c);
+        cont.add(BCSLabel, c);
 
-        CCSLabel = new JLabel("1.23");
+        CCSLabel = new JLabel();
         c.gridx = 3;
-        cont.add(CCSLabel,c);
+        cont.add(CCSLabel, c);
 
-        DCSLabel = new JLabel("0");
+        DCSLabel = new JLabel();
         c.gridx = 4;
-        cont.add(DCSLabel,c);
+        cont.add(DCSLabel, c);
 
 
         //// Log text panel ////
@@ -287,7 +270,7 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
         c.gridy = 7;
         c.gridx = 0;
         c.gridwidth = 7;
-        c.insets = new Insets(40,0,0,0);
+        c.insets = new Insets(40, 0, 0, 0);
         cont.add(logScrollPane, c);
 
         //// Speed slider ////
@@ -298,10 +281,9 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
         speedSlider.setPaintTicks(true);
         speedSlider.setPaintLabels(true);
         speedSlider.setFont(new Font("Arial", Font.PLAIN, 15));
-        speedSlider.setMinimumSize(new Dimension(50,300));
+        speedSlider.setMinimumSize(new Dimension(50, 300));
 
-        speedSlider.addChangeListener(new ChangeListener(){
-
+        speedSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 JSlider source = (JSlider) e.getSource();
@@ -345,23 +327,33 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
         setJMenuBar(menubar);
     }
 
-    protected static ImageIcon createImageIcon(String path) {
-        java.net.URL imgURL = Simulation.class.getResource(path);
-        //error handling omitted for clarity...
-        return new ImageIcon(imgURL);
-    }
-
     /**
      * Újra kiírja a szimulációban részt vevő lifteknek az aktuális állapotát.
      * Nem vár paramétert, és nem is ad vissza semmit.
      */
-    private void refresh(){
+    private void refresh() {
 
         timeLabel.setText(timer.getNiceFormat());
-        if (aElevator.status == Elevator.Status.WAIT_FOR_CALL){aLabel.setBackground(free);} else {aLabel.setBackground(busy);}
-        if (bElevator.status == Elevator.Status.WAIT_FOR_CALL){bLabel.setBackground(free);} else {bLabel.setBackground(busy);}
-        if (cElevator.status == Elevator.Status.WAIT_FOR_CALL){cLabel.setBackground(free);} else {cLabel.setBackground(busy);}
-        if (dElevator.status == Elevator.Status.WAIT_FOR_CALL){dLabel.setBackground(free);} else {dLabel.setBackground(busy);}
+        if (aElevator.status == Elevator.Status.WAIT_FOR_CALL) {
+            aLabel.setBackground(free);
+        } else {
+            aLabel.setBackground(busy);
+        }
+        if (bElevator.status == Elevator.Status.WAIT_FOR_CALL) {
+            bLabel.setBackground(free);
+        } else {
+            bLabel.setBackground(busy);
+        }
+        if (cElevator.status == Elevator.Status.WAIT_FOR_CALL) {
+            cLabel.setBackground(free);
+        } else {
+            cLabel.setBackground(busy);
+        }
+        if (dElevator.status == Elevator.Status.WAIT_FOR_CALL) {
+            dLabel.setBackground(free);
+        } else {
+            dLabel.setBackground(busy);
+        }
 
         ACLLabel.setText(String.valueOf(aElevator.actualFloor));
         BCLLabel.setText(String.valueOf(bElevator.actualFloor));
@@ -398,7 +390,7 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
 
         try {
             initCalls(); //read the calls from file
-            logPane.append("Hívások beolvasva (" + calls.size()+ "db)\n");
+            logPane.append("Hívások beolvasva (" + calls.size() + "db)\n");
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
@@ -408,13 +400,13 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
         calls.sort(new Comparator<Call>() {
             @Override
             public int compare(Call o1, Call o2) {
-                if( o1.timer.hh != o2.timer.hh){
+                if (o1.timer.hh != o2.timer.hh) {
                     return o1.timer.hh - o2.timer.hh;
                 } else {
-                    if( o1.timer.mm != o2.timer.mm){
+                    if (o1.timer.mm != o2.timer.mm) {
                         return o1.timer.mm - o2.timer.mm;
                     } else {
-                        if(o1.timer.ss != o2.timer.ss){
+                        if (o1.timer.ss != o2.timer.ss) {
                             return o1.timer.ss - o2.timer.ss;
                         } else {
                             return 0;
@@ -429,107 +421,76 @@ public class Simulation extends JFrame implements Runnable, ActionListener{
         int doneCalls = 0;
         Call call = null;
 
-        while(simulating){
-            if(doneCalls == calls.size()){
+        while (simulating) {
+            if (doneCalls == calls.size()) {
 //                TODO stop the simulation
             } else {
-                /*call = calls.get(doneCalls);
-
-                while(call.timer.equals(calls.get(doneCalls))){
-                    controller.addNewCall(call);
-                    doneCalls++;
-                }*/
-                do{
+                do {
                     call = calls.get(doneCalls);
-                    if(call.timer.equals(timer)){
+                    if (call.timer.equals(timer)) {
+                        System.out.println(timer.getNiceFormat() + " - call:" + call.from + " - " + call.to + " - " + call.timer.getNiceFormat());
                         controller.addNewCall(call);
                         doneCalls++;
                     }
-                    if(doneCalls == calls.size()){
+                    if (doneCalls == calls.size()) {
                         break;
                     }
-                }while (call.timer.equals(calls.get(doneCalls)));
-
+                } while (call.timer.equals(calls.get(doneCalls)));
             }
 
-            sleepTime = Math.round(1000/playSpeed);
+            sleepTime = Math.round(1000 / playSpeed);
             refresh();
             timer.addSecond();
-            try{
+            try {
                 sleep(sleepTime);
-            } catch (InterruptedException ex){
+            } catch (InterruptedException ex) {
 
             }
         }
     }
 
     private void cleanElevatorsAttribute() {
-        //remove earlier calls from elevatros
-        aElevator.calls.clear();
-        bElevator.calls.clear();
-        cElevator.calls.clear();
-        dElevator.calls.clear();
-        
-        //set currentSpeed to 0
-        aElevator.actualSpeed = 0.0;
-        bElevator.actualSpeed = 0.0;
-        cElevator.actualSpeed = 0.0;
-        dElevator.actualSpeed = 0.0;
-        
-        //set elevators' status to default
-        aElevator.status = Elevator.Status.WAIT_FOR_CALL;
-        bElevator.status = Elevator.Status.WAIT_FOR_CALL;
-        cElevator.status = Elevator.Status.WAIT_FOR_CALL;
-        dElevator.status = Elevator.Status.WAIT_FOR_CALL;
-        
-        //set actual passengers to 0
-        aElevator.actualPassengers = 0;
-        bElevator.actualPassengers = 0;
-        cElevator.actualPassengers = 0;
-        dElevator.actualPassengers = 0;
-
-        //set done passengers to 0
-        aElevator.donePassengers = 0;
-        bElevator.donePassengers = 0;
-        cElevator.donePassengers = 0;
-        dElevator.donePassengers = 0;
+        aElevator.cleanAttributes();
+        bElevator.cleanAttributes();
+        cElevator.cleanAttributes();
+        dElevator.cleanAttributes();
     }
 
 
     public void actionPerformed(ActionEvent e) {
-        if("start_simulating".equals(e.getActionCommand())){
+        if ("start_simulating".equals(e.getActionCommand())) {
             simulating = true;
-            //System.out.println("szimuláció elindítva");
-            logPane.append("Szimuláció elindítva (" + playSpeed + "x)\n");
             startBtn.setEnabled(false);
             stopBtn.setEnabled(true);
             editBtn.setEnabled(false);
-            timer.setTime(0,0,0);
+
+            timer.setTime(0, 0, 0);
             refresh();
+
             thread = new Thread(this);
-            aThread = new Thread( aElevator);
-            bThread = new Thread( bElevator);
-            cThread = new Thread( cElevator);
-            dThread = new Thread( dElevator);
+            aThread = new Thread(aElevator);
+            bThread = new Thread(bElevator);
+            cThread = new Thread(cElevator);
+            dThread = new Thread(dElevator);
             thread.start();
-        } else if("stop_simulating".equals(e.getActionCommand())){
+
+            logPane.append("Szimuláció elindítva (" + playSpeed + "x)\n");
+        } else if ("stop_simulating".equals(e.getActionCommand())) {
             simulating = false;
-            //System.out.println("szimuláció leállítva");
-            logPane.append("Szimuláció leállítva (" + timer.getNiceFormat() + ")\n");
             startBtn.setEnabled(true);
             stopBtn.setEnabled(false);
             editBtn.setEnabled(true);
+
             thread.stop();
             aThread.stop();
             bThread.stop();
             cThread.stop();
             dThread.stop();
-        } else if( "edit_calls".equals(e.getActionCommand())){
+            logPane.append("Szimuláció leállítva (" + timer.getNiceFormat() + ")\n");
+        } else if ("edit_calls".equals(e.getActionCommand())) {
             try {
                 CallsController call = new CallsController();
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            } catch (ClassNotFoundException e1) {
+            } catch (IOException | ClassNotFoundException e1) {
                 e1.printStackTrace();
             }
         }

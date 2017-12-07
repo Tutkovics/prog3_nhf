@@ -2,12 +2,14 @@ package nhf;
 
 import javax.swing.*;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static java.lang.StrictMath.abs;
 import static java.lang.StrictMath.sqrt;
 import static java.lang.Thread.sleep;
 
 public class Elevator implements Runnable {
+
     public String name;
     public int maxSeats, maxFloor, minFloor;
     public int actualFloor;
@@ -24,12 +26,10 @@ public class Elevator implements Runnable {
 
     private JTextArea logArea;
 
-
-
     public enum Status{WAIT_FOR_CALL, WORKING;}
     public Status status;
 
-    public ArrayList<Call> calls = new ArrayList<>(); // TreeSet, mert növekvő sorrendbe tárolja a szintek számát
+    public CopyOnWriteArrayList<Call> calls;
 
     Random random = new Random();
 
@@ -54,7 +54,7 @@ public class Elevator implements Runnable {
         name = nameOfElv;
         status = Status.WAIT_FOR_CALL;
         this.logArea = logArea;
-
+        calls = new CopyOnWriteArrayList<>();
 
         // set to a random floor
         actualFloor = random.nextInt(maxFloor + 1 - minFloor) + minFloor;
@@ -108,11 +108,12 @@ public class Elevator implements Runnable {
                 if(c.s == Call.Status.CALLED){
                     c.s = Call.Status.GET_IN;
                     actualPassengers++;
-                } else if( c.s== Call.Status.GET_IN){
+                } else if( c.s == Call.Status.GET_IN){
                     c.s = Call.Status.DONE;
                     donePassengers++;
                     actualPassengers--;
                 }
+
                 //open the door, wait and close
                 logArea.append(name + " - Ajtó nyitás\n");
                 actualSpeed = 0.0;
@@ -144,7 +145,15 @@ public class Elevator implements Runnable {
 
     private double getSpeedAfterStart(double spentTime) {
         double speed = acceleration * spentTime;
-        return speed > maxSpeed ? maxSpeed: speed;
+        return (speed > maxSpeed) ? maxSpeed : speed;
+    }
+
+    public void cleanAttributes(){
+        this.actualSpeed = 0.0;
+        this.calls.clear();
+        this.actualPassengers = 0;
+        this.donePassengers = 0;
+        this.status = Status.WAIT_FOR_CALL;
     }
 
     /**
@@ -216,7 +225,7 @@ public class Elevator implements Runnable {
                 int stops = 0;
                 Integer previous = null;
                 for(Integer i: sortedStops){
-                    if( !isBetween(previous, i, call.from)){
+                    if( previous!= null && !isBetween(previous, i, call.from)){
                         //while there is more stops
                         time += timeBeetweenTwoFloor(previous,i);
                         stops++;
@@ -337,9 +346,10 @@ public class Elevator implements Runnable {
         int bigger = Integer.max(from, to);
         int smaller = Integer.min(from, to);
 
-        if(smaller < x && bigger > x){
+        if (smaller < x && bigger > x) {
             return true;
         }
+
         return false;
     }
 }
